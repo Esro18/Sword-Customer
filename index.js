@@ -1,7 +1,10 @@
 const path = require("path");
 const { Client, GatewayIntentBits, AttachmentBuilder } = require("discord.js");
-const { createCanvas, loadImage } = require("@napi-rs/canvas");
+const Canvas = require("canvas");
 require("dotenv").config();
+
+// تسجيل الخط
+Canvas.registerFont(path.join(process.cwd(), "Arial.ttf"), { family: "Arial" });
 
 const client = new Client({
     intents: [
@@ -20,9 +23,6 @@ client.on("ready", () => {
 
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
-
-    console.log(`📩 رسالة في: ${msg.channel.id}`);
-
     if (msg.channel.id !== REVIEW_CHANNEL) return;
 
     const reviewText = msg.content;
@@ -35,11 +35,11 @@ client.on("messageCreate", async msg => {
         console.log("⚠️ فشل حذف الرسالة:", e);
     }
 
-    // تحميل الخلفية باستخدام المسار المطلق
+    // تحميل الخلفية
     const bgPath = path.join(process.cwd(), "review-bg.png");
     let bg;
     try {
-        bg = await loadImage(bgPath);
+        bg = await Canvas.loadImage(bgPath);
     } catch (err) {
         console.log("❌ فشل تحميل الخلفية:", err);
         await msg.channel.send("⚠️ الخلفية غير موجودة أو اسمها خطأ.");
@@ -47,7 +47,7 @@ client.on("messageCreate", async msg => {
     }
 
     // إنشاء اللوحة
-    const canvas = createCanvas(bg.width, bg.height);
+    const canvas = Canvas.createCanvas(bg.width, bg.height);
     const ctx = canvas.getContext("2d");
 
     // رسم الخلفية
@@ -56,7 +56,7 @@ client.on("messageCreate", async msg => {
     // تحميل صورة العضو
     let avatar;
     try {
-        avatar = await loadImage(avatarURL);
+        avatar = await Canvas.loadImage(avatarURL);
     } catch (err) {
         console.log("❌ فشل تحميل صورة العضو:", err);
         await msg.channel.send("⚠️ فشل تحميل صورة العضو.");

@@ -1,10 +1,6 @@
-const path = require("path");
 const { Client, GatewayIntentBits, AttachmentBuilder } = require("discord.js");
-const Canvas = require("canvas");
+const { Card } = require("canvacord");
 require("dotenv").config();
-
-// تسجيل الخط
-Canvas.registerFont(path.join(process.cwd(), "Arial.ttf"), { family: "Arial" });
 
 const client = new Client({
     intents: [
@@ -14,7 +10,6 @@ const client = new Client({
     ]
 });
 
-// ID روم التقييمات
 const REVIEW_CHANNEL = "1499842400678314205";
 
 client.on("ready", () => {
@@ -28,87 +23,23 @@ client.on("messageCreate", async msg => {
     const reviewText = msg.content;
     const avatarURL = msg.author.displayAvatarURL({ extension: "png" });
 
-    // حذف رسالة العضو
-    try {
-        await msg.delete();
-    } catch (e) {
-        console.log("⚠️ فشل حذف الرسالة:", e);
-    }
+    try { await msg.delete(); } catch {}
 
-    // تحميل الخلفية
-    const bgPath = path.join(process.cwd(), "review-bg.png");
-    let bg;
-    try {
-        bg = await Canvas.loadImage(bgPath);
-    } catch (err) {
-        console.log("❌ فشل تحميل الخلفية:", err);
-        await msg.channel.send("⚠️ الخلفية غير موجودة أو اسمها خطأ.");
-        return;
-    }
+    const card = new Card()
+        .setAvatar(avatarURL)
+        .setTitle(msg.author.username)
+        .setDescription(reviewText)
+        .setColor("#2c2f33")
+        .setBackground("https://i.imgur.com/8bYQFJH.png");
 
-    // إنشاء اللوحة
-    const canvas = Canvas.createCanvas(bg.width, bg.height);
-    const ctx = canvas.getContext("2d");
+    const img = await card.build();
+    const attachment = new AttachmentBuilder(img, { name: "review.png" });
 
-    // رسم الخلفية
-    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-
-    // تحميل صورة العضو
-    let avatar;
-    try {
-        avatar = await Canvas.loadImage(avatarURL);
-    } catch (err) {
-        console.log("❌ فشل تحميل صورة العضو:", err);
-        await msg.channel.send("⚠️ فشل تحميل صورة العضو.");
-        return;
-    }
-
-    // رسم صورة العضو داخل دائرة
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(120, 120, 60, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-    ctx.drawImage(avatar, 60, 60, 120, 120);
-    ctx.restore();
-
-    // اسم العضو
-    ctx.font = "bold 40px Arial";
-    ctx.fillStyle = "#a8cfff";
-    ctx.fillText(msg.author.username, 200, 130);
-
-    // نص التقييم
-    ctx.font = "35px Arial";
-    ctx.fillStyle = "#ffffff";
-    wrapText(ctx, reviewText, 100, 350, 950, 50);
-
-    // تحويل الصورة إلى ملف
-    const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: "review.png" });
-
-    // إرسال الصورة مع رسالة التقييم
     await msg.channel.send({
         content: `⭐ **تقييم جديد من ${msg.author}**`,
         files: [attachment]
     });
 });
-
-// دالة التفاف النص
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(" ");
-    let line = "";
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + " ";
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth) {
-            ctx.fillText(line, x, y);
-            line = words[n] + " ";
-            y += lineHeight;
-        } else {
-            line = testLine;
-        }
-    }
-    ctx.fillText(line, x, y);
-}
 
 client.login(process.env.TOKEN);
 // =====================================================

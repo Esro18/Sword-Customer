@@ -20,7 +20,7 @@ client.on("ready", () => {
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
 
-    // Debug للتأكد إن البوت يقرأ الروم
+    // Debug
     console.log(`📩 رسالة في: ${msg.channel.id}`);
 
     if (msg.channel.id !== REVIEW_CHANNEL) return;
@@ -29,7 +29,11 @@ client.on("messageCreate", async msg => {
     const avatarURL = msg.author.displayAvatarURL({ extension: "png" });
 
     // حذف رسالة العضو
-    try { await msg.delete(); } catch (e) {}
+    try { 
+        await msg.delete(); 
+    } catch (e) {
+        console.log("⚠️ فشل حذف الرسالة:", e);
+    }
 
     // تحميل الخلفية
     const bg = await loadImage("./assets/review-bg.png");

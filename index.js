@@ -1,3 +1,4 @@
+const path = require("path");
 const { Client, GatewayIntentBits, AttachmentBuilder } = require("discord.js");
 const { createCanvas, loadImage } = require("@napi-rs/canvas");
 require("dotenv").config();
@@ -20,7 +21,6 @@ client.on("ready", () => {
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
 
-    // Debug
     console.log(`📩 رسالة في: ${msg.channel.id}`);
 
     if (msg.channel.id !== REVIEW_CHANNEL) return;
@@ -29,14 +29,22 @@ client.on("messageCreate", async msg => {
     const avatarURL = msg.author.displayAvatarURL({ extension: "png" });
 
     // حذف رسالة العضو
-    try { 
-        await msg.delete(); 
+    try {
+        await msg.delete();
     } catch (e) {
         console.log("⚠️ فشل حذف الرسالة:", e);
     }
 
-    // تحميل الخلفية
-    const bg = await loadImage("./assets/review-bg.png");
+    // تحميل الخلفية باستخدام المسار المطلق
+    const bgPath = path.join(process.cwd(), "assets", "review-bg.png");
+    let bg;
+    try {
+        bg = await loadImage(bgPath);
+    } catch (err) {
+        console.log("❌ فشل تحميل الخلفية:", err);
+        await msg.channel.send("⚠️ الخلفية غير موجودة أو اسمها خطأ داخل مجلد assets.");
+        return;
+    }
 
     // إنشاء اللوحة
     const canvas = createCanvas(bg.width, bg.height);
@@ -45,8 +53,17 @@ client.on("messageCreate", async msg => {
     // رسم الخلفية
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
+    // تحميل صورة العضو
+    let avatar;
+    try {
+        avatar = await loadImage(avatarURL);
+    } catch (err) {
+        console.log("❌ فشل تحميل صورة العضو:", err);
+        await msg.channel.send("⚠️ فشل تحميل صورة العضو.");
+        return;
+    }
+
     // رسم صورة العضو داخل دائرة
-    const avatar = await loadImage(avatarURL);
     ctx.save();
     ctx.beginPath();
     ctx.arc(120, 120, 60, 0, Math.PI * 2);
@@ -68,7 +85,7 @@ client.on("messageCreate", async msg => {
     // تحويل الصورة إلى ملف
     const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: "review.png" });
 
-    // إرسال الصورة
+    // إرسال الصورة مع رسالة التقييم
     await msg.channel.send({
         content: `⭐ **تقييم جديد من ${msg.author}**`,
         files: [attachment]

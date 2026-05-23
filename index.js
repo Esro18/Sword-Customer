@@ -48,4 +48,4 @@ client.login(process.env.TOKEN);
 
 // تم بناء هذا النظام بالكامل بواسطة:
 // Sword Customers — Discord Bot
-// جميع الحقوق محفوظة لدى Esro Store ❤️ .
+// جميع الحقوق محفوظة لدى Esro Store ❤️ 

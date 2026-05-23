@@ -10,6 +10,7 @@ const client = new Client({
     ]
 });
 
+// ID روم التقييمات
 const REVIEW_CHANNEL = "1499842400678314205";
 
 client.on("ready", () => {
@@ -18,23 +19,27 @@ client.on("ready", () => {
 
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
+
+    // Debug — للتأكد إن البوت يقرأ الروم
+    console.log(`📩 رسالة في: ${msg.channel.id} | المطلوب: ${REVIEW_CHANNEL}`);
+
     if (msg.channel.id !== REVIEW_CHANNEL) return;
 
     const reviewText = msg.content;
     const avatarURL = msg.author.displayAvatarURL({ extension: "png" });
 
     // تحميل الخلفية
-    const bg = await Canvas.loadImage("./assets/review-bg.png");
+    const bg = await loadImage("./assets/review-bg.png");
 
     // إنشاء اللوحة
-    const canvas = Canvas.createCanvas(bg.width, bg.height);
+    const canvas = createCanvas(bg.width, bg.height);
     const ctx = canvas.getContext("2d");
 
     // رسم الخلفية
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-    // رسم صورة العضو داخل الدائرة
-    const avatar = await Canvas.loadImage(avatarURL);
+    // رسم صورة العضو داخل دائرة
+    const avatar = await loadImage(avatarURL);
     ctx.save();
     ctx.beginPath();
     ctx.arc(120, 120, 60, 0, Math.PI * 2);
@@ -43,12 +48,12 @@ client.on("messageCreate", async msg => {
     ctx.drawImage(avatar, 60, 60, 120, 120);
     ctx.restore();
 
-    // اسم العضو داخل المربع الصغير
+    // اسم العضو
     ctx.font = "bold 40px Arial";
     ctx.fillStyle = "#a8cfff";
     ctx.fillText(msg.author.username, 200, 130);
 
-    // نص التقييم داخل المربع الكبير
+    // نص التقييم
     ctx.font = "35px Arial";
     ctx.fillStyle = "#ffffff";
     wrapText(ctx, reviewText, 100, 350, 950, 50);
@@ -56,7 +61,7 @@ client.on("messageCreate", async msg => {
     // تحويل الصورة إلى ملف
     const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: "review.png" });
 
-    // إرسال الصورة داخل الروم
+    // إرسال الصورة
     await msg.channel.send({
         content: `⭐ **تقييم جديد من ${msg.author}**`,
         files: [attachment]

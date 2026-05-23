@@ -10,7 +10,7 @@ const client = new Client({
     ]
 });
 
-const REVIEW_CHANNEL = "التقييمات";
+const REVIEW_CHANNEL = "1499842400678314205";
 
 client.on("ready", () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
@@ -18,7 +18,7 @@ client.on("ready", () => {
 
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
-    if (msg.channel.name !== REVIEW_CHANNEL) return;
+    if (msg.channel.id !== REVIEW_CHANNEL) return;
 
     const reviewText = msg.content;
     const avatarURL = msg.author.displayAvatarURL({ extension: "png" });

@@ -36,13 +36,13 @@ client.on("messageCreate", async msg => {
     }
 
     // تحميل الخلفية باستخدام المسار المطلق
-    const bgPath = path.join(process.cwd(), "assets", "review-bg.png");
+    const bgPath = path.join(process.cwd(), "review-bg.png");
     let bg;
     try {
         bg = await loadImage(bgPath);
     } catch (err) {
         console.log("❌ فشل تحميل الخلفية:", err);
-        await msg.channel.send("⚠️ الخلفية غير موجودة أو اسمها خطأ داخل مجلد assets.");
+        await msg.channel.send("⚠️ الخلفية غير موجودة أو اسمها خطأ.");
         return;
     }
 

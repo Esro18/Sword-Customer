@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, AttachmentBuilder } = require("discord.js");
-const { createCanvas, loadImag } = require("@napi-rs/canvas");
+const { createCanvas, loadImage } = require("@napi-rs/canvas");
 require("dotenv").config();
 
 const client = new Client({

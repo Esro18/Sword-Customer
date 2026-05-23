@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, AttachmentBuilder } = require("discord.js");
-const { Card } = require("canvacord");
+const canvacord = require("canvacord");
 require("dotenv").config();
 
 const client = new Client({
@@ -21,16 +21,22 @@ client.on("messageCreate", async msg => {
     if (msg.channel.id !== REVIEW_CHANNEL) return;
 
     const reviewText = msg.content;
-    const avatarURL = msg.author.displayAvatarURL({ extension: "png" });
+    const avatarURL = msg.author.displayAvatarURL({ format: "png" });
 
     try { await msg.delete(); } catch {}
 
-    const card = new Card()
+    const card = new canvacord.Rank()
         .setAvatar(avatarURL)
-        .setTitle(msg.author.username)
-        .setDescription(reviewText)
-        .setColor("#2c2f33")
-        .setBackground("https://i.imgur.com/8bYQFJH.png");
+        .setCurrentXP(0)
+        .setRequiredXP(100)
+        .setLevel(1)
+        .setRank(1)
+        .setStatus("online")
+        .setProgressBar("#ffffff", "COLOR")
+        .setUsername(msg.author.username)
+        .setDiscriminator(msg.author.discriminator)
+        .setBackground("IMAGE", "https://i.imgur.com/8bYQFJH.png")
+        .setCustomStatus(reviewText);
 
     const img = await card.build();
     const attachment = new AttachmentBuilder(img, { name: "review.png" });

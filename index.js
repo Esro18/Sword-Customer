@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, AttachmentBuilder } = require("discord.js");
-const canvacord = require("canvacord");
+const axios = require("axios");
 require("dotenv").config();
 
 const client = new Client({
@@ -21,25 +21,18 @@ client.on("messageCreate", async msg => {
     if (msg.channel.id !== REVIEW_CHANNEL) return;
 
     const reviewText = msg.content;
-    const avatarURL = msg.author.displayAvatarURL({ format: "png" });
+    const avatarURL = msg.author.displayAvatarURL({ extension: "png" });
 
     try { await msg.delete(); } catch {}
 
-    const card = new canvacord.Rank()
-        .setAvatar(avatarURL)
-        .setCurrentXP(0)
-        .setRequiredXP(100)
-        .setLevel(1)
-        .setRank(1)
-        .setStatus("online")
-        .setProgressBar("#ffffff", "COLOR")
-        .setUsername(msg.author.username)
-        .setDiscriminator(msg.author.discriminator)
-        .setBackground("IMAGE", "https://i.imgur.com/8bYQFJH.png")
-        .setCustomStatus(reviewText);
+    // API ثابت ويدعم العربي
+    const url = `https://api.popcat.xyz/quote?image=${encodeURIComponent(avatarURL)}&text=${encodeURIComponent(reviewText)}&name=${encodeURIComponent(msg.author.username)}`;
 
-    const img = await card.build();
-    const attachment = new AttachmentBuilder(img, { name: "review.png" });
+    const response = await axios.get(url, { responseType: "arraybuffer" });
+
+    const attachment = new AttachmentBuilder(Buffer.from(response.data), {
+        name: "review.png"
+    });
 
     await msg.channel.send({
         content: `⭐ **تقييم جديد من ${msg.author}**`,

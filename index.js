@@ -20,13 +20,16 @@ client.on("ready", () => {
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
 
-    // Debug — للتأكد إن البوت يقرأ الروم
-    console.log(`📩 رسالة في: ${msg.channel.id} | المطلوب: ${REVIEW_CHANNEL}`);
+    // Debug للتأكد إن البوت يقرأ الروم
+    console.log(`📩 رسالة في: ${msg.channel.id}`);
 
     if (msg.channel.id !== REVIEW_CHANNEL) return;
 
     const reviewText = msg.content;
     const avatarURL = msg.author.displayAvatarURL({ extension: "png" });
+
+    // حذف رسالة العضو
+    try { await msg.delete(); } catch (e) {}
 
     // تحميل الخلفية
     const bg = await loadImage("./assets/review-bg.png");

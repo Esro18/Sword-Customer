@@ -25,8 +25,8 @@ client.on("messageCreate", async msg => {
 
     try { await msg.delete(); } catch {}
 
-    // API ثابت ويدعم العربي
-    const url = `https://api.popcat.xyz/quote?image=${encodeURIComponent(avatarURL)}&text=${encodeURIComponent(reviewText)}&name=${encodeURIComponent(msg.author.username)}`;
+    // 🔥 API حقك في Render
+    const url = `https://sword-review-api.onrender.com/review?avatar=${encodeURIComponent(avatarURL)}&username=${encodeURIComponent(msg.author.username)}&text=${encodeURIComponent(reviewText)}`;
 
     const response = await axios.get(url, { responseType: "arraybuffer" });
 
